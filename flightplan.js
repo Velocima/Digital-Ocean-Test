@@ -1,21 +1,42 @@
-const plan = require('flightplan');
+var plan = require('flightplan');
 
-var appName = 'test';
+var appName = 'node-app';
 var username = 'deploy';
 var startFile = 'server.js';
 
 var tmpDir = appName+'-' + new Date().getTime();
 
-plan.target('production', 
+// configuration
+plan.target('staging', [
   {
-    host: "209.97.177.228",
-    username,
+    host: '209.97.177.228',
+    username: username,
     agent: process.env.SSH_AUTH_SOCK,
-    privateKey: 'C:/Users/mcmax/.ssh/id_rsa',
+    privateKey: 'C:/Users/mcmax/.ssh/id_rsa'
   }
-);
+]);
 
+plan.target('production', [
+  {
+    host: '209.97.177.228',
+    username: username,
+    agent: process.env.SSH_AUTH_SOCK,
+    privateKey: 'C:/Users/mcmax/.ssh/id_rsa'
+  },
+//add in another server if you have more than one
+// {
+//   host: '104.131.93.216',
+//   username: username,
+//   agent: process.env.SSH_AUTH_SOCK
+// }
+]);
+
+// run commands on localhost
 plan.local(function(local) {
+  // uncomment these if you need to run a build on your machine first
+  // local.log('Run build');
+  // local.exec('gulp build');
+
   local.log('Copy files to remote hosts');
   var filesToCopy = local.exec('git ls-files', {silent: true});
   // rsync files to all the destination's hosts
